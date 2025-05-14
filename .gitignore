@@ -1,0 +1,5 @@
+src/checkpoints/
+src/ffmpeg.exe
+*.png
+src/vggish/vggish_model.ckpt
+src/bert_base_chinese/pytorch_model.bin
