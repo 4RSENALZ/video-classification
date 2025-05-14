@@ -2,7 +2,7 @@ VGGish模型来源：https://github.com/tensorflow/models/tree/master/research/a
 
 NeXtVLAD模型来源：https://github.com/zhongzhh8/Video-classification-with-knowledge-distillation/blob/master/nextvlad.py
 
-数据集来源：https://www.kaggle.com/datasets/zhuosun03/bilibili-must-watch 和 https://github.com/zhaisc2001/dataset_bilibili?tab=readme-ov-file（经过了一些手工筛选、合并、重新标注）
+数据集来源（经过了一些手工筛选、合并、重新标注）：https://www.kaggle.com/datasets/zhuosun03/bilibili-must-watch 和 https://github.com/zhaisc2001/dataset_bilibili?tab=readme-ov-file
 
 整体模型框架如图：
 ![image](https://github.com/user-attachments/assets/a3d3c742-f41c-49d1-a9c3-39da70482e85)
