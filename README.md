@@ -21,6 +21,7 @@ NeXtVLAD:https://github.com/zhongzhh8/Video-classification-with-knowledge-distil
 效果大概像这样：  
 ![image](https://github.com/user-attachments/assets/a3d34dac-bc96-4563-bea7-2fbc5279630d)  
 我的数据集目录结构：  
+```plaintext
 datasets  
 ├── raw_data  
 │   ├── train  
