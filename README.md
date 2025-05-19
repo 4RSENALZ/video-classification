@@ -41,3 +41,43 @@ NeXtVLAD:https://github.com/zhongzhh8/Video-classification-with-knowledge-distil
 效果大概像这样：
 
 ![image](https://github.com/user-attachments/assets/a3d34dac-bc96-4563-bea7-2fbc5279630d)
+
+我的数据集结构：
+datasets
+├── raw_data
+│   ├── train
+│   │   ├── video //训练集视频我实际上放在datasets/video文件夹了
+│   │   ├── audio
+│   │   └── text
+│   ├── val
+│   │   ├── video
+│   │   ├── audio
+│   │   └── text
+│   ├── test
+│   │   ├── video
+│   │   ├── audio
+│   │   └── text
+│   └── video //训练集视频
+├── processed
+│   └── frames //视频提取出的帧图片
+│       ├── train
+│       ├── val
+│       └── test
+└── features
+    ├── frame_resnet //resnet提取的图像特征
+    │   ├── train
+    │   ├── val
+    │   └── test
+    ├── audio_vggish //vggish提取的音频特征
+    │   ├── train
+    │   ├── val
+    │   └── test
+    ├── text_bert //bert提取的文本特征
+    │   ├── train
+    │   ├── val
+    │   └── test
+    └── feature_nextvlad //聚合后的特征向量
+        ├── train
+        ├── val
+        └── test
+
