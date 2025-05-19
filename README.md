@@ -25,7 +25,7 @@ datasets
 ├── raw_data  
 │   ├── train  
 │   │   ├── video //训练集视频我实际上放在datasets/video文件夹了  
-│   │   │   └── 各个分类的子文件夹（25类）  
+│   │   │    └── 各个分类的子文件夹（25类）  
 │   │   ├── audio  
 │   │   └── text  
 │   ├── val  
@@ -38,7 +38,7 @@ datasets
 │   │   └── text  
 │   └── video //训练集视频  
 ├── processed  
-│   └── frames //视频提取出的帧图片  
+│    └── frames //视频提取出的帧图片  
 │       ├── train  
 │       ├── val  
 │       └── test  
