@@ -1,5 +1,5 @@
 # 把分帧后的图像特征向量聚合
-# 把分窗后的音频特征向量聚合
+# 以及把分帧后的音频特征向量聚合
 
 import os
 import pandas as pd
@@ -48,7 +48,7 @@ def aggregate_features_with_nextvlad(model, feature_array):
         feature_array = np.vstack((feature_array, padding))
 
     feature_array = np.expand_dims(feature_array, axis=0)
-    aggregated = model.predict(feature_array, verbose=0)
+    aggregated = model.predict(feature_array, verbose=0)#predict 方法会将输入数据传递给模型的前向传播逻辑（即 call 方法）
     return aggregated.squeeze()
 
 if __name__ == "__main__":

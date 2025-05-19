@@ -1,4 +1,4 @@
-#检查下载失败的视频
+#建立数据集的第一步：检查下载失败的视频
 
 import os
 import pandas as pd
@@ -6,7 +6,6 @@ from pathlib import Path
 import re
 
 def extract_bvid(text):
-    """通用BV号提取函数"""
     # 匹配两种格式：
     # 1. 直接包含的BV号（如 [BV1vb4y1q7QL]）
     # 2. 链接形式的BV号（如 https://b23.tv/BV1gr4y1U7cR）
@@ -14,7 +13,7 @@ def extract_bvid(text):
     return match.group(1) if match else None
 
 def find_missing_videos():
-    # 配置路径参数（保持不变）
+    # 配置路径参数
     excel_path = r"C:\Users\28302\OneDrive\文档\我的B站视频数据集.xlsx"
     text_dirs = [
         r"E:\毕业设计\datasets\bili_datasets\raw_data\train\text",
@@ -26,7 +25,7 @@ def find_missing_videos():
     # 读取Excel数据
     try:
         df = pd.read_excel(excel_path, engine='openpyxl')
-        # 提取Excel中的BV号（假设列名为"BV号"）
+        # 提取Excel中的BV号
         df['bvid'] = df['BV号'].apply(extract_bvid)
         excel_bvids = set(df['bvid'].dropna().unique())
     except Exception as e:

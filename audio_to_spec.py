@@ -1,4 +1,4 @@
-# 把音频转换为频谱图（完全没用到）
+# 把音频转换为频谱图（完全没用到，extra_audio_feature里直接一个函数解决）
 
 import os
 import librosa
@@ -11,7 +11,7 @@ import numpy as np
 # 设置支持中文的字体
 def set_chinese_font():
     try:
-        font_path = "C:/Windows/Fonts/simhei.ttf"  # 常见的中文字体（黑体）
+        font_path = "C:/Windows/Fonts/simhei.ttf"
         font = FontProperties(fname=font_path)
         rcParams['font.family'] = font.get_name()
     except Exception as e:
@@ -27,7 +27,7 @@ output_base_path = r"E:/毕业设计/datasets/bili_datasets/processed/spectrogra
 # 创建输出目录
 os.makedirs(output_base_path, exist_ok=True)
 
-# 分类列表（从原始音频文件夹中读取）
+# 分类列表
 categories = os.listdir(audio_base_path)
 
 # 记录失败音频的数量
@@ -66,7 +66,7 @@ for category in categories:
             y, sr = librosa.load(audio_path, sr=None)  # sr=None 保持原采样率
 
             # 计算 MFCC
-            mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)  # n_mfcc 设置提取 20 个 MFCC 特征
+            mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
             mfcc = np.clip(mfcc, a_min=-100, a_max=100)  # 限制动态范围，避免异常值
 
             # 创建频谱图图像

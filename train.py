@@ -40,7 +40,7 @@ def parse_label_map(sort_txt_path):
             if len(parts) != 2:
                 continue  # 忽略不规范行
             title, category = parts
-            title = clean_title(title)  # <== 添加这一行
+            title = clean_title(title)
             if category in CATEGORY2IDX:
                 label_idx = CATEGORY2IDX[category]
                 label_map[title] = label_idx
@@ -55,7 +55,7 @@ def top_k_accuracy(outputs, labels, k=5):
     return correct.mean().item()
 
 # ========== 2. 融合模型 ==========
-#交叉注意力，加上反而很快就过拟合了
+#交叉注意力，加上反而很快就过拟合了，如果数据集大一点或许会有效果
 # class CrossModalAttention(nn.Module):
 #     def __init__(self, dim):
 #         super().__init__()
@@ -289,9 +289,9 @@ def train(model, dataloader, optimizer, criterion, device, epoch, scheduler=None
         labels = labels.to(device)
 
         # 添加特征级噪声（只在训练时）
-        image_feat = add_noise(image_feat, std=0.05)
-        audio_feat = add_noise(audio_feat, std=0.05)
-        text_feat = add_noise(text_feat, std=0.02)
+        image_feat = add_noise(image_feat, std=0.005)
+        audio_feat = add_noise(audio_feat, std=0.01)
+        text_feat = add_noise(text_feat, std=0.005)
 
         optimizer.zero_grad()
         outputs, weights = model(image_feat, audio_feat, text_feat)
@@ -317,7 +317,7 @@ def train(model, dataloader, optimizer, criterion, device, epoch, scheduler=None
 
     # 每10个epoch保存一次模型
     if (epoch + 1) % 10 == 0:
-        model_path = os.path.join(save_dir, f"V7_epoch_{epoch+1}.pt")
+        model_path = os.path.join(save_dir, f"V9_epoch_{epoch+1}.pt")
         torch.save(model.state_dict(), model_path)
 
     return avg_loss, top1, top5
@@ -353,7 +353,7 @@ def evaluate(model, dataloader, device, criterion=None):
     top5 = top_k_accuracy(all_outputs, all_labels, k=5)
     avg_loss = total_loss / len(dataloader) if criterion else None
 
-    # sklearn 指标（注意：需转 numpy）
+    # sklearn 指标（以top1为准）
     precision = precision_score(all_labels.numpy(), preds.numpy(), average='macro', zero_division=0)
     recall = recall_score(all_labels.numpy(), preds.numpy(), average='macro', zero_division=0)
     f1 = f1_score(all_labels.numpy(), preds.numpy(), average='macro', zero_division=0)
@@ -480,7 +480,8 @@ def run_training():
     class_weights_tensor = torch.tensor(class_weights, dtype=torch.float).to(device)
     print(f"类别权重: {class_weights_tensor}")
 
-    criterion = nn.CrossEntropyLoss(weight=class_weights_tensor, label_smoothing=0.1)
+    #criterion = nn.CrossEntropyLoss(weight=class_weights_tensor, label_smoothing=0.1)
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1) #去掉类别权重试试？(确实是去掉之后效果更好了)
     optimizer = torch.optim.Adam(model.parameters(), lr=1e-4, weight_decay=1e-5)
 
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
@@ -501,7 +502,7 @@ def run_training():
     val_top1s, val_top5s = [], []
     learning_rates = []
 
-    early_stopping = EarlyStopping(patience=7, delta=0.001, verbose=True, save_path='checkpoints/V7_best_model.pt')
+    early_stopping = EarlyStopping(patience=7, delta=0.001, verbose=True, save_path='checkpoints/V9_best_model.pt')
 
     for epoch in range(num_epochs):
         # === 使用 train() 执行一轮训练 ===

@@ -1,3 +1,4 @@
+# 提取视频音频的特征向量
 import os
 import numpy as np
 import tensorflow.compat.v1 as tf

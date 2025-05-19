@@ -1,3 +1,4 @@
+# 提取视频标题的特征向量
 import os
 import torch
 import pandas as pd
@@ -31,7 +32,7 @@ if __name__ == "__main__":
         category_output_path = os.path.join(features_base_path, category)
         os.makedirs(category_output_path, exist_ok=True)
 
-        # 加载已经存在的特征文件（如果存在）
+        # 加载已经存在的特征文件
         category_output_file = os.path.join(category_output_path, f"{category}.csv")
         processed_titles = set()
         if os.path.exists(category_output_file):

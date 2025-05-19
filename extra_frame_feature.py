@@ -32,21 +32,17 @@ def read_image(frame_path):
 
 # 处理全白/全黑图像
 def is_blank_image(img, threshold=10):
-    """
-    判断图像是否是全白或全黑
-    - `threshold` 设定像素方差的最低值（越小越严格）
-    """
+    #判断图像是否是全白或全黑
+    #`threshold` 设定像素方差的最低值（越小越严格）
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     return np.std(gray) < threshold  # 方差过低表示几乎无变化
 
 # 图像预处理函数
 def preprocess_image(img):
-    """
-    对图像进行预处理：
-    1. 移除黑边
-    2. 调整长宽比
-    3. 标准化
-    """
+    #对图像进行预处理：
+    #1. 移除黑边
+    #2. 调整长宽比
+    #3. 标准化到224*224的比例（用了黑色填充，也可以试试镜像填充之类的）
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
     x, y, w, h = cv2.boundingRect(thresh)
@@ -147,14 +143,6 @@ if __name__ == "__main__":
 def extract_single_video_feature(frame_dir, output_dir, video_name):
     """
     给定帧图像文件夹路径，提取所有帧图像的特征向量，保存为CSV，并返回特征向量。
-
-    参数：
-    - frame_dir: 帧图像所在的文件夹路径
-    - output_dir: 特征保存路径（文件夹）
-    - video_name: 文件保存用的清洗后标题
-
-    返回：
-    - features: numpy.ndarray 类型的特征数组，形状为 (帧数, 每帧的特征维度)
     """
     os.makedirs(output_dir, exist_ok=True)
     output_csv_path = os.path.join(output_dir, f"{video_name}.csv")

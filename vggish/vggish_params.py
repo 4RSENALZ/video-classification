@@ -19,20 +19,20 @@ See vggish_slim.py for more information.
 """
 
 # Architectural constants.
-NUM_FRAMES = 96  # Frames in input mel-spectrogram patch.
-NUM_BANDS = 64  # Frequency bands in input mel-spectrogram patch.
-EMBEDDING_SIZE = 128  # Size of embedding layer.
+NUM_FRAMES = 96  # 输入 Mel 频谱图的帧数
+NUM_BANDS = 64  # 输入 Mel 频谱图的频率带数
+EMBEDDING_SIZE = 128  # 嵌入层的大小
 
-# Hyperparameters used in feature and example generation.
-SAMPLE_RATE = 16000
-STFT_WINDOW_LENGTH_SECONDS = 0.025
-STFT_HOP_LENGTH_SECONDS = 0.010
+# 用于特征和样本生成的超参数
+SAMPLE_RATE = 16000 # 采样率（Hz）
+STFT_WINDOW_LENGTH_SECONDS = 0.025 # STFT（短时傅立叶变换）窗口长度（秒）
+STFT_HOP_LENGTH_SECONDS = 0.010 # STFT 滑动步长（秒）
 NUM_MEL_BINS = NUM_BANDS
 MEL_MIN_HZ = 125
 MEL_MAX_HZ = 7500
-LOG_OFFSET = 0.01  # Offset used for stabilized log of input mel-spectrogram.
-EXAMPLE_WINDOW_SECONDS = 0.96  # Each example contains 96 10ms frames
-EXAMPLE_HOP_SECONDS = 0.96     # with zero overlap.
+LOG_OFFSET = 0.01  # 用于稳定化对数计算的偏移量
+EXAMPLE_WINDOW_SECONDS = 0.96  # 每个样本包含 96 帧，每帧 10 毫秒
+EXAMPLE_HOP_SECONDS = 0.96     # 样本之间无重叠
 
 # Parameters used for embedding postprocessing.
 PCA_EIGEN_VECTORS_NAME = 'pca_eigen_vectors'

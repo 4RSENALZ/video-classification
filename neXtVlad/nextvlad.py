@@ -54,23 +54,25 @@ class NeXtVLAD(tf.keras.layers.Layer):
 
     def call(self, inputs, mask=None):
         # Fully connected for expansion
-        inputs_expanded = self.expansion_fc(inputs)
+        inputs_expanded = self.expansion_fc(inputs)# 通过全连接层扩展特征维度，使其更适合 VLAD 聚类
 
         # Attention mechanism
-        attention = self.attention_fc(inputs_expanded)
+        attention = self.attention_fc(inputs_expanded)#计算每一帧的注意力权重
         if mask is not None:
             attention = tf.multiply(attention, tf.expand_dims(mask, axis=-1))
-        attention = tf.reshape(attention, [-1, self.max_frames * self.groups, 1])
+        attention = tf.reshape(attention, [-1, self.max_frames * self.groups, 1])    # 展平时间维度和 group 维度，准备参与后续矩阵运算
 
         # Compute activation
         inputs_reshaped = tf.reshape(inputs_expanded, [-1, self.expansion * self.feature_size])
-        activation = tf.matmul(inputs_reshaped, self.cluster_weights)
+        activation = tf.matmul(inputs_reshaped, self.cluster_weights)    # 计算输入特征与聚类中心的相似度（Soft Assignment软分配）
         activation = self.bn_cluster(activation, training=self.is_training)
         activation = tf.reshape(activation, [-1, self.max_frames * self.groups, self.cluster_size])
-        activation = tf.nn.softmax(activation, axis=-1)
+        activation = tf.nn.softmax(activation, axis=-1)# 使用 softmax 得到软分配概率（每帧特征属于每个 cluster 的概率）
 
         # Apply attention
+        # 用 attention 权重对 soft-assignment 进行加权，强调重要帧的贡献
         activation = tf.multiply(activation, attention)
+        # 计算每个 cluster 的残差总和需要一个均值项 a，a_sum 是所有帧对每个 cluster 的总贡献权重
         a_sum = tf.reduce_sum(activation, axis=-2, keepdims=True)
         a = tf.multiply(a_sum, self.cluster_weights2)
 
@@ -78,17 +80,19 @@ class NeXtVLAD(tf.keras.layers.Layer):
         activation = tf.transpose(activation, perm=[0, 2, 1])
         inputs_grouped = tf.reshape(inputs_expanded, [-1, self.max_frames * self.groups,
                                                       (self.expansion * self.feature_size) // self.groups])
-        vlad = tf.matmul(activation, inputs_grouped)
+        vlad = tf.matmul(activation, inputs_grouped)# 执行加权求和：对每个 cluster 加权聚合其所“负责”的帧特征
         vlad = tf.transpose(vlad, perm=[0, 2, 1])
-        vlad = tf.subtract(vlad, a)
+        vlad = tf.subtract(vlad, a)    # 减去 cluster 中心均值，得到残差向量：表示特征与 cluster 中心的偏差
 
         # Normalization and final transformation
+        # 对每个通道做 L2 归一化，防止某些 cluster 的输出过大
         vlad = tf.nn.l2_normalize(vlad, axis=1)
-        vlad = tf.reshape(vlad, [-1, self.cluster_size * ((self.expansion * self.feature_size) // self.groups)])
+        vlad = tf.reshape(vlad, [-1, self.cluster_size * ((self.expansion * self.feature_size) // self.groups)])    # 将所有 cluster 的残差拼接成一个向量，形成最终聚合特征
         vlad = self.bn_vlad(vlad, training=self.is_training)
 
         return vlad
 #call 方法会返回聚合后的特征，形状为 (1, cluster_size * ((expansion * feature_size) // groups))
+#例如我的输入特征维度是 512，扩展倍数是 2，分组数是 8，聚类数是 16，那么输出特征的维度就是 (1, 16 * ((2 * 512) // 8)) = (1, 2048)
 
 class NeXtVLADModel_teacher(models.BaseModel):
     """Creates a NeXtVLAD based model.

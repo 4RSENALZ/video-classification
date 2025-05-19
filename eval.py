@@ -11,6 +11,13 @@ from sklearn.metrics import roc_auc_score
 from train import MultiModalWeightedFusion 
 from train import MultiModalDataset, CATEGORY2IDX, CATEGORIES 
 from train import top_k_accuracy 
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc as sk_auc
+from sklearn.preprocessing import label_binarize
+import matplotlib
+matplotlib.rcParams['font.sans-serif'] = ['SimHei']  # 设置中文字体为黑体
+matplotlib.rcParams['axes.unicode_minus'] = False    # 解决负号显示为方块的问题
+
 
 def compute_hit_at_k(preds, targets, k=1):
     topk_preds = torch.topk(preds, k=k, dim=1).indices
@@ -160,6 +167,32 @@ def evaluate(model, dataloader, device, criterion=None):
     try:
         probs = F.softmax(all_outputs, dim=1)
         auc = roc_auc_score(all_labels.numpy(), probs.numpy(), multi_class="ovo", average="macro")
+        y_true = all_labels.numpy()
+        y_score = probs.numpy()
+        n_classes = y_score.shape[1]
+        # 多分类标签二值化
+        y_true_bin = label_binarize(y_true, classes=np.arange(n_classes))
+
+        plt.figure(figsize=(10, 8))
+        for i in range(n_classes):
+            if np.sum(y_true_bin[:, i]) == 0:
+                continue  # 跳过没有该类的情况
+            fpr, tpr, _ = roc_curve(y_true_bin[:, i], y_score[:, i])
+            roc_auc = sk_auc(fpr, tpr)
+            plt.plot(fpr, tpr, lw=2, label=f'Class {i} ({CATEGORIES[i]}) AUC={roc_auc:.2f}')
+
+        plt.plot([0, 1], [0, 1], 'k--', lw=1)
+        plt.xlim([0.0, 1.0])
+        plt.ylim([0.0, 1.05])
+        plt.xlabel('False Positive Rate')
+        plt.ylabel('True Positive Rate')
+        plt.title('Multi-class ROC Curve')
+        plt.legend(loc="lower right", fontsize='small')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig("roc_curve.png")
+        plt.close()
+        print("ROC曲线已保存为 roc_curve.png")
     except Exception as e:
         auc = None
         print(f"AUC 计算失败: {e}")
@@ -167,8 +200,8 @@ def evaluate(model, dataloader, device, criterion=None):
     # Top-K、MAP、GAP
     top1 = compute_hit_at_k(all_outputs, all_labels, k=1)
     top5 = top_k_accuracy(all_outputs, all_labels, k=5)
-    map5 = compute_map(all_outputs, all_labels)
-    gap = compute_gap(all_outputs, all_labels)
+    #map5 = compute_map(all_outputs, all_labels)
+    #gap = compute_gap(all_outputs, all_labels)
 
     avg_loss = total_loss / len(dataloader) if criterion else None
 
@@ -186,7 +219,7 @@ def evaluate(model, dataloader, device, criterion=None):
 
     print(f"\nOverall (Weighted Avg): [{precision:.4f} {recall:.4f} {f1:.4f}]")
 
-    return avg_loss, top1, top5, map5, gap, auc, precision, recall, f1, None  # cm 设为 None（不再返回）
+    return avg_loss, top1, top5, auc, precision, recall, f1, None  # cm 设为 None（不再返回）
 
 
 def main():
@@ -194,8 +227,8 @@ def main():
     print(f"Using device: {device}")
 
     # 模型
-    model = MultiModalWeightedFusion(use_attention=False).to(device)
-    checkpoint_path = "checkpoints/V6_best_model.pt"
+    model = MultiModalWeightedFusion(use_attention=True).to(device)
+    checkpoint_path = "checkpoints/V9_best_model.pt"
     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
 
     # 数据
@@ -218,15 +251,15 @@ def main():
     criterion = nn.CrossEntropyLoss(weight=class_weights_tensor)
 
        # 评估
-    test_loss, top1, top5, map5, gap, auc, precision, recall, f1, _ = evaluate(model, test_loader, device, criterion)
+    test_loss, top1, top5, auc, precision, recall, f1, _ = evaluate(model, test_loader, device, criterion)
 
     # 输出结果
     print("\n====== Evaluation Summary ======")
     print(f"Test Loss: {test_loss:.4f}")
     print(f"Hit@1 (Top-1 Accuracy): {top1:.4f}")
     print(f"Top-5 Accuracy: {top5:.4f}")
-    print(f"MAP@5: {map5:.4f}")
-    print(f"GAP: {gap:.4f}")
+    #print(f"MAP@5: {map5:.4f}")
+    #print(f"GAP: {gap:.4f}")
     print(f"AUC (macro): {auc:.4f}" if auc is not None else "AUC 计算失败")
         
     

@@ -13,6 +13,7 @@ import torch
 import torch.nn.functional as F
 import matplotlib
 matplotlib.rcParams['font.family'] = 'Microsoft YaHei'
+from matplotlib import transforms
 import matplotlib.pyplot as plt
 from PIL import Image
 import os
@@ -24,7 +25,7 @@ CATEGORIES = [
 ]
 
 # 输入视频文件路径
-video_path = r"E:/毕业设计/datasets/bili_datasets/raw_data/test/video/绘画/三个星期实现了《锦鲤玉扇》的开扇动画，第一次画会动的水。 [BV19Y4y1E7zE].mp4"
+video_path = r"E:/毕业设计/datasets/bili_datasets/raw_data/test/video/动物/【大熊猫和花】本来不想笑的，但是和花你太搞笑了 [BV1gP4y1J7gu].mp4"
 output_base_dir = r"E:/毕业设计/bishe_test"
 output_dir = r"E:/毕业设计/bishe_test/features/frame_features"
 
@@ -54,10 +55,7 @@ def save_audio_feature_to_csv(audio_feature, cleaned_title):
         print(f"音频特征为空，无法保存：{cleaned_title}")
 
 def save_title_feature_to_csv(title_feature, cleaned_title):
-    """
-    保存标题特征向量到 CSV 文件，路径为：
-    E:/毕业设计/bishe_test/features/title_features/{cleaned_title}.csv
-    """
+# 保存标题特征向量到 CSV 文件
     if title_feature is not None:
         title_features_folder = r"E:/毕业设计/bishe_test/features/title_features"
         os.makedirs(title_features_folder, exist_ok=True)
@@ -79,7 +77,7 @@ def load_feature_vector(path):
     return torch.tensor(vector)
 
 def show_prediction_window(cleaned_title, raw_title, top5_indices, top5_probs, sort_txt_path, frame_dir):
-    # 1. 获取第一帧图像
+    # 获取第一帧图像
     first_frame_path = None
     for fname in sorted(os.listdir(frame_dir)):
         if fname.endswith(".jpg") or fname.endswith(".png"):
@@ -90,10 +88,10 @@ def show_prediction_window(cleaned_title, raw_title, top5_indices, top5_probs, s
         print("未找到第一帧图像")
         return
 
-    # 2. 加载图片
+    # 加载图片
     image = Image.open(first_frame_path)
 
-    # 3. 加载源标签（从 sort.txt 中匹配 raw_title）
+    # 加载源标签（从 sort.txt 中匹配 raw_title）
     original_label = "未知"
     with open(sort_txt_path, 'r', encoding='utf-8') as f:
         for line in f:
@@ -101,23 +99,41 @@ def show_prediction_window(cleaned_title, raw_title, top5_indices, top5_probs, s
                 original_label = line.strip().split('\t')[-1]
                 break
 
-    # 4. 获取预测标签名及概率
+    # 获取预测标签名及概率
     predicted_lines = []
     for idx, prob in zip(top5_indices, top5_probs):
         category = CATEGORIES[idx]
         predicted_lines.append(f"{category} ({prob:.2%})")
 
-    # 5. 展示图像 + 标签信息
+    # 展示图像 + 标签信息
     plt.figure(figsize=(8, 6))
     plt.imshow(image)
     plt.axis('off')
 
-    # 设置标题显示原始和预测标签
-    plt.title(f"原始标签：{original_label}", fontsize=12, color='blue', loc='left')
-
-    # 添加预测文本信息
-    prediction_text = "\n".join([f"Top {i+1}: {line}" for i, line in enumerate(predicted_lines)])
-    plt.figtext(0.5, 0.01, prediction_text, wrap=True, ha='center', fontsize=14, color='white', backgroundcolor='black')
+    # 添加预测文本信息，并高亮命中标签
+    prediction_text = ""
+    for i, line in enumerate(predicted_lines):
+        # 提取类别名
+        pred_category = line.split(' ')[0]
+        if pred_category == original_label:
+            # 命中高亮
+            prediction_text += f"Top {i+1}: " + f"\033[1;31m{line}\033[0m" + "\n"
+        else:
+            prediction_text += f"Top {i+1}: {line}\n"
+    plt.figtext(
+    0.5, 0.01, "", wrap=True, ha='center', fontsize=14, color='white', backgroundcolor='black'
+    )
+    # 逐行绘制，命中高亮
+    y0 = 0.3
+    dy = 0.05
+    for i, line in enumerate(predicted_lines):
+        pred_category = line.split(' ')[0]
+        color = 'yellow' if pred_category == original_label else 'white'
+        fontweight = 'bold' if pred_category == original_label else 'normal'
+        plt.figtext(
+            0.5, y0 - i * dy, f"Top {i+1}: {line}", wrap=True, ha='center',
+            fontsize=14, color=color, backgroundcolor='black', fontweight=fontweight
+        )
 
     plt.tight_layout()
     plt.show()
@@ -213,7 +229,7 @@ def main():
 if __name__ == "__main__":
     cleaned_title, raw_title = main()
     if cleaned_title is not None:
-        model_path = r"E:/毕业设计/src/checkpoints/V7_best_model.pt"
+        model_path = r"E:/毕业设计/src/checkpoints/V8_best_model.pt"
         predict(cleaned_title,raw_title, model_path)
     else:
         print("清理后的标题为空，预测终止。")

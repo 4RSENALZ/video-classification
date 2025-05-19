@@ -34,7 +34,7 @@ def clean_title(title):
     title = re.sub(r'[^\w\u4e00-\u9fa5\s]', '', title)
     # 将空格和多个下划线替换为单个下划线
     title = re.sub(r'[\s_]+', '_', title)
-    # 去除标题末尾的 `_`，避免无意义的 `_`
+    # 去除标题末尾的下划线
     title = title.rstrip('_')
     # 截断过长标题（保留前50字符）
     return title[:50]
@@ -78,7 +78,7 @@ def extract_frames(video_path, output_dir, video_name):
 
     except Exception as e:
         print(f"提取帧失败：{video_name}，错误信息：{e}")
-        return -1  # 返回 -1 表示失败
+        return -1
 
 # 音频提取函数
 def extract_audio(video_path, output_dir, video_name):

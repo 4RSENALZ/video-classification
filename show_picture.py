@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 def read_image(image_path):
     return cv2.imdecode(np.fromfile(image_path, dtype=np.uint8), cv2.IMREAD_COLOR)
 
-# 你的图像预处理代码
 def preprocess_image(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     _, thresh = cv2.threshold(gray, 1, 255, cv2.THRESH_BINARY)
@@ -35,7 +34,7 @@ def preprocess_image(img):
 
     return img_cropped, img_padded
 
-# 读取测试图像
+# 随便选了一张图
 test_image_path = r"E:/毕业设计/datasets/bili_datasets/processed/frames/train/仿妆cos/粉丝想看我爸cos森鸥外_我给他找了个新女儿/粉丝想看我爸cos森鸥外_我给他找了个新女儿0790.jpg"
 
 img = read_image(test_image_path)
