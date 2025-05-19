@@ -1,16 +1,10 @@
-数据集来源(经过了一些手动整合、筛选和标注）：https://www.kaggle.com/datasets/zhuosun03/bilibili-must-watch（第一个数据集：bili2019每周必看）
-
-https://github.com/zhaisc2001/dataset_bilibili?tab=readme-ov-file（另一个B站数据集）
-
-VGGish:https://github.com/tensorflow/models/tree/master/research/audioset/vggish
-
-NeXtVLAD:https://github.com/zhongzhh8/Video-classification-with-knowledge-distillation/blob/master/nextvlad.py
-
-模型框架：
-
-![fc3e171ee375a7b4fd140bd5d64e138](https://github.com/user-attachments/assets/b9e56fd1-fa78-4363-b807-2a9f8ffb3d7b)
-
-运行顺序：
+数据集来源(经过了一些手动整合、筛选和标注）：https://www.kaggle.com/datasets/zhuosun03/bilibili-must-watch（第一个数据集：bili2019每周必看）  
+https://github.com/zhaisc2001/dataset_bilibili?tab=readme-ov-file（另一个B站数据集）  
+VGGish:https://github.com/tensorflow/models/tree/master/research/audioset/vggish  
+NeXtVLAD:https://github.com/zhongzhh8/Video-classification-with-knowledge-distillation/blob/master/nextvlad.py  
+模型框架：  
+![fc3e171ee375a7b4fd140bd5d64e138](https://github.com/user-attachments/assets/b9e56fd1-fa78-4363-b807-2a9f8ffb3d7b)  
+运行顺序：  
 
 1.下载数据集，用yt-nlp工具通过URL 批量下载视频
 
