@@ -42,7 +42,7 @@ datasets
 │       ├── train  
 │       ├── val  
 │       └── test  
-└── features
+└── features  
     ├── frame_resnet //resnet提取的图像特征  
     │   ├── train  
     │   ├── val  
